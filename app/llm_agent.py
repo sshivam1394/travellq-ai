@@ -1,135 +1,43 @@
-import pandas as pd
+from openai import OpenAI
+import os
 
-# =========================
-# LOAD DATA
-# =========================
-
-df = pd.read_csv(
-    "data/processed/cleaned_reviews.csv"
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
 )
-
-# =========================
-# BASIC DATA
-# =========================
-
-positive_reviews = df[
-    df["review_sentiment"] == "POSITIVE"
-]
-
-negative_reviews = df[
-    df["review_sentiment"] == "NEGATIVE"
-]
-
-# =========================
-# AI FUNCTION
-# =========================
 
 def ask_ai(question):
 
-    question = question.lower()
+    sample_context = """
+    TravelIQ AI Hotel Review Insights:
 
-    # =====================
-    # PRICING
-    # =====================
+    - Most customers liked hotel cleanliness.
+    - Staff friendliness is highly appreciated.
+    - Negative reviews mention room service delays.
+    - Breakfast quality is praised frequently.
+    """
 
-    if (
-        "price" in question or
-        "pricing" in question or
-        "cost" in question
-    ):
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"""
+                    You are a travel intelligence AI assistant.
 
-        return """
-### AI Business Insight
+                    Use this hotel review context:
 
-Pricing inconsistency appears to be one of the major causes of customer dissatisfaction.
+                    {sample_context}
+                    """
+                },
+                {
+                    "role": "user",
+                    "content": question
+                }
+            ]
+        )
 
-### Recommendation
-- Improve pricing transparency
-- Align room quality with pricing expectations
-- Offer better value-added services
-"""
+        return response.choices[0].message.content
 
-    # =====================
-    # ROOM QUALITY
-    # =====================
-
-    elif (
-        "room" in question or
-        "cleanliness" in question
-    ):
-
-        return """
-### AI Business Insight
-
-Room quality and cleanliness strongly influence customer sentiment.
-
-### Recommendation
-- Improve housekeeping consistency
-- Upgrade room maintenance standards
-- Monitor cleanliness feedback regularly
-"""
-
-    # =====================
-    # STAFF
-    # =====================
-
-    elif (
-        "staff" in question or
-        "service" in question
-    ):
-
-        return """
-### AI Business Insight
-
-Positive staff behavior significantly improves customer satisfaction.
-
-### Recommendation
-- Continue hospitality training
-- Reward high-performing staff
-- Improve response speed to complaints
-"""
-
-    # =====================
-    # GENERAL SUMMARY
-    # =====================
-
-    elif (
-        "summary" in question or
-        "overall" in question
-    ):
-
-        return f"""
-### Executive Summary
-
-- Total Reviews Analyzed: {len(df)}
-- Positive Reviews: {len(positive_reviews)}
-- Negative Reviews: {len(negative_reviews)}
-
-### Key Findings
-- Customers value comfort and location
-- Pricing and room quality are major complaint areas
-- Staff service positively impacts customer experience
-"""
-
-    # =====================
-    # DEFAULT RESPONSE
-    # =====================
-
-    else:
-
-        return """
-### AI Business Insight
-
-Customer satisfaction is influenced by:
-- room quality
-- pricing
-- staff behavior
-- cleanliness
-- comfort
-
-### Suggested Questions
-- pricing complaints
-- room quality issues
-- customer satisfaction summary
-- staff performance
-"""
+    except Exception as e:
+        return f"AI Error: {str(e)}"
