@@ -30,8 +30,26 @@ st.set_page_config(
 # LOAD DATA
 # =====================================================
 
-df = pd.read_csv(
-    "data/processed/cleaned_reviews.csv"
+import pandas as pd
+
+sample_data = {
+    "review": [
+        "Excellent hotel and friendly staff",
+        "Room was clean and beautiful",
+        "Bad room service experience",
+        "Amazing breakfast and hospitality",
+        "Very slow check-in process"
+    ],
+    "sentiment": [
+        "POSITIVE",
+        "POSITIVE",
+        "NEGATIVE",
+        "POSITIVE",
+        "NEGATIVE"
+    ]
+}
+
+df = pd.DataFrame(sample_data)
 )
 
 # =====================================================
