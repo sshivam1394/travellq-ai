@@ -1,43 +1,37 @@
-from openai import OpenAI
+import google.generativeai as genai
 import os
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
+genai.configure(
+    api_key=os.getenv("GEMINI_API_KEY")
 )
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def ask_ai(question):
 
-    sample_context = """
-    TravelIQ AI Hotel Review Insights:
+    context = """
+    TravelIQ AI Insights:
 
-    - Most customers liked hotel cleanliness.
+    - Customers love hotel cleanliness.
     - Staff friendliness is highly appreciated.
-    - Negative reviews mention room service delays.
-    - Breakfast quality is praised frequently.
+    - Negative reviews mention delayed room service.
+    - Breakfast quality receives positive feedback.
     """
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": f"""
-                    You are a travel intelligence AI assistant.
+        response = model.generate_content(
+            f"""
+            You are a travel intelligence AI assistant.
 
-                    Use this hotel review context:
+            Context:
+            {context}
 
-                    {sample_context}
-                    """
-                },
-                {
-                    "role": "user",
-                    "content": question
-                }
-            ]
+            User Question:
+            {question}
+            """
         )
 
-        return response.choices[0].message.content
+        return response.text
 
     except Exception as e:
         return f"AI Error: {str(e)}"
