@@ -1,7 +1,13 @@
 import requests
 import os
 
-API_KEY = os.getenv("GEMINI_API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+
+headers = {
+    "Authorization": f"Bearer {HF_TOKEN}"
+}
 
 def ask_ai(question):
 
@@ -9,64 +15,40 @@ def ask_ai(question):
     TravelIQ AI Hotel Insights:
 
     - Customers appreciate cleanliness.
-    - Staff friendliness improves ratings.
-    - Breakfast quality drives positive reviews.
-    - Delayed room service causes complaints.
-    - Poor WiFi causes negative reviews.
+    - Friendly staff improves ratings.
+    - Poor WiFi creates complaints.
+    - Good breakfast increases satisfaction.
+    - Slow room service causes negative reviews.
     """
 
     prompt = f"""
-    You are an AI business intelligence assistant.
-
     Context:
     {context}
 
-    User Question:
+    Question:
     {question}
+
+    Answer:
     """
 
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key={API_KEY}"
-
-    headers = {
-        "Content-Type": "application/json"
-    }
-
-    data = {
-        "contents": [
-            {
-                "parts": [
-                    {
-                        "text": prompt
-                    }
-                ]
-            }
-        ]
+    payload = {
+        "inputs": prompt
     }
 
     try:
 
         response = requests.post(
-            url,
+            API_URL,
             headers=headers,
-            json=data
+            json=payload
         )
 
         result = response.json()
 
-        print(result)
+        if isinstance(result, list):
+            return result[0]["generated_text"]
 
-        if "candidates" in result:
-
-            return result["candidates"][0]["content"]["parts"][0]["text"]
-
-        elif "error" in result:
-
-            return f"Gemini API Error: {result['error']['message']}"
-
-        else:
-
-            return f"Unexpected Response: {result}"
+        return str(result)
 
     except Exception as e:
-
         return f"AI Error: {str(e)}"
