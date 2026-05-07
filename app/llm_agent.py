@@ -43,6 +43,12 @@ def ask_ai(question):
             json=payload
         )
 
+        # Debug output
+        print(response.text)
+
+        if response.status_code != 200:
+            return f"HF API Error: {response.text}"
+
         result = response.json()
 
         if isinstance(result, list):
