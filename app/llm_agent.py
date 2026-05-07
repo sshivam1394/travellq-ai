@@ -1,13 +1,7 @@
-import google.generativeai as genai
+import requests
 import os
 
-genai.configure(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
-
-model = genai.GenerativeModel(
-    "models/text-bison-001"
-)
+API_KEY = os.getenv("GEMINI_API_KEY")
 
 def ask_ai(question):
 
@@ -16,25 +10,51 @@ def ask_ai(question):
 
     - Customers appreciate cleanliness.
     - Staff friendliness improves ratings.
-    - Delayed room service causes complaints.
     - Breakfast quality drives positive reviews.
+    - Delayed room service causes complaints.
+    - Poor WiFi causes negative reviews.
     """
+
+    prompt = f"""
+    You are an AI business intelligence assistant.
+
+    Context:
+    {context}
+
+    User Question:
+    {question}
+    """
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
+    }
 
     try:
 
-        response = model.generate_content(
-            f"""
-            You are a travel business intelligence AI assistant.
-
-            Context:
-            {context}
-
-            User Question:
-            {question}
-            """
+        response = requests.post(
+            url,
+            headers=headers,
+            json=data
         )
 
-        return response.text
+        result = response.json()
+
+        return result["candidates"][0]["content"]["parts"][0]["text"]
 
     except Exception as e:
+
         return f"AI Error: {str(e)}"
