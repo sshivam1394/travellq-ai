@@ -53,7 +53,19 @@ def ask_ai(question):
 
         result = response.json()
 
-        return result["candidates"][0]["content"]["parts"][0]["text"]
+        print(result)
+
+        if "candidates" in result:
+
+            return result["candidates"][0]["content"]["parts"][0]["text"]
+
+        elif "error" in result:
+
+            return f"Gemini API Error: {result['error']['message']}"
+
+        else:
+
+            return f"Unexpected Response: {result}"
 
     except Exception as e:
 
