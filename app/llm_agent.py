@@ -5,23 +5,26 @@ genai.configure(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel(
+    "models/text-bison-001"
+)
 
 def ask_ai(question):
 
     context = """
-    TravelIQ AI Insights:
+    TravelIQ AI Hotel Insights:
 
-    - Customers love hotel cleanliness.
-    - Staff friendliness is highly appreciated.
-    - Negative reviews mention delayed room service.
-    - Breakfast quality receives positive feedback.
+    - Customers appreciate cleanliness.
+    - Staff friendliness improves ratings.
+    - Delayed room service causes complaints.
+    - Breakfast quality drives positive reviews.
     """
 
     try:
+
         response = model.generate_content(
             f"""
-            You are a travel intelligence AI assistant.
+            You are a travel business intelligence AI assistant.
 
             Context:
             {context}
